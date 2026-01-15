@@ -28,35 +28,43 @@
         <button class="fab" onclick="showScreen('screen-register')"><i class="material-icons">add</i></button>
     </section>
 
-    <!-- Tela 3: Cadastro -->
+    <!-- Tela 3: Cadastro de Imóvel -->
     <section id="screen-register" class="screen">
         <header><button onclick="showScreen('screen-dashboard')">Voltar</button><h2>Novo Imóvel</h2></header>
         <div class="form">
-            <input type="text" id="cep" placeholder="CEP (apenas números)" onblur="searchCEP()">
+            <input type="text" id="cep" placeholder="CEP" onblur="searchCEP()">
             <input type="text" id="rua" placeholder="Rua" readonly>
             <input type="text" id="bairro" placeholder="Bairro" readonly>
             <input type="text" id="cidade" placeholder="Cidade" readonly>
             <input type="text" id="numero" placeholder="Número">
-            <input type="text" id="complemento" placeholder="Complemento (ex: Apto 201)">
+            <input type="text" id="complemento" placeholder="Complemento (Apto, Bloco...)">
             <button onclick="saveProperty()" id="btnSaveProp">Salvar Imóvel</button>
         </div>
     </section>
 
-    <!-- Tela 4: Detalhes do Imóvel -->
+    <!-- Tela 4: Gestão do Imóvel (Lista de Vistorias) -->
     <section id="screen-property-detail" class="screen">
         <header><button onclick="showScreen('screen-dashboard')">Voltar</button><h2 id="detail-title"></h2></header>
         <div id="inspection-list"></div>
         <button class="fab" onclick="openNewInspection()"><i class="material-icons">playlist_add</i></button>
     </section>
 
-    <!-- Tela 5: Formulário de Vistoria -->
+    <!-- Tela 5: Formulário de Nova Vistoria -->
     <section id="screen-inspection-form" class="screen">
-        <header><button onclick="showScreen('screen-property-detail')">Cancelar</button><h2>Vistoria</h2></header>
+        <header><button onclick="showScreen('screen-property-detail')">Cancelar</button><h2>Nova Vistoria</h2></header>
         <div class="form">
-            <textarea id="ins-obs" placeholder="Observações gerais do imóvel..."></textarea>
+            <textarea id="ins-obs" placeholder="Observações gerais..."></textarea>
             <div id="room-sections"></div>
             <button onclick="addRoomSection()" class="btn-secondary">+ Adicionar Cômodo</button>
             <button onclick="saveInspection()" id="btnSaveIns" style="background: #28a745;">Finalizar e Salvar</button>
+        </div>
+    </section>
+
+    <!-- Tela 6: Visualizar Vistoria Pronta -->
+    <section id="screen-view-inspection" class="screen">
+        <header><button onclick="showScreen('screen-property-detail')">Voltar</button><h2>Detalhes da Vistoria</h2></header>
+        <div id="view-inspection-content" class="form">
+            <!-- Conteúdo gerado pelo JS -->
         </div>
     </section>
 
