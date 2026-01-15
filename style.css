@@ -1,25 +1,15 @@
-body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8f9fa; color: #333; }
+body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #333; }
 .screen { display: none; padding: 15px; flex-direction: column; align-items: center; min-height: 100vh; }
 .screen.active { display: flex; }
-header { width: 100%; background: white; padding: 10px; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; }
+header { width: 100%; background: white; padding: 10px; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; box-sizing: border-box;}
 .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; margin-top: 20%; }
 button { padding: 15px; margin: 8px 0; border: none; background: #007bff; color: white; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; font-size: 16px; }
 .btn-secondary { background: #6c757d; }
 input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-.fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #007bff; color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
-
-/* Estilo dos itens da lista */
-.property-item, .inspection-item { background: white; padding: 15px; margin: 8px 0; border-radius: 10px; width: 100%; max-width: 500px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; cursor: pointer; }
-.inspection-item { display: flex; justify-content: space-between; align-items: center; }
-.delete-btn { color: #dc3545; background: none; width: auto; padding: 5px; margin: 0; }
-
-/* Estilo da Vistoria Aberta */
-.room-box, .room-view { background: #fff; border: 1px solid #dee2e6; padding: 15px; margin: 15px 0; border-radius: 12px; width: 100%; }
-.room-view h3 { margin-top: 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-.thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin: 4px; border: 1px solid #ddd; }
-.obs-view { background: #e9ecef; padding: 10px; border-radius: 8px; font-style: italic; margin-bottom: 15px; width: 100%; }
-
-label { font-weight: bold; align-self: flex-start; margin-top: 10px; color: #555; }
-.room-view { border-left: 5px solid #007bff; padding-left: 15px; margin-bottom: 20px; background: #fff; }
-.room-view input[type="text"] { font-weight: bold; border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 5px 0; }
-.add-photo-btn { background: #6c757d; font-size: 12px; padding: 8px; margin-top: 5px; width: auto; display: inline-block; }
+.fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #007bff; color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 20; }
+.property-item, .inspection-item { background: white; padding: 15px; margin: 8px 0; border-radius: 10px; width: 100%; max-width: 500px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-sizing: border-box;}
+.room-box { background: white; border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 10px; width: 100%; box-sizing: border-box; border-left: 5px solid #007bff; }
+.thumb { width: 75px; height: 75px; object-fit: cover; border-radius: 8px; margin: 4px; border: 1px solid #eee; }
+.delete-btn { background: none; color: #dc3545; width: auto; padding: 5px; margin: 0; }
+label { font-weight: bold; font-size: 14px; color: #666; align-self: flex-start; }
+.upload-label { background: #e9ecef; color: #495057; padding: 10px; border-radius: 8px; display: inline-block; cursor: pointer; margin-top: 10px; font-size: 14px; }
