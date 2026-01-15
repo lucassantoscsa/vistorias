@@ -1,79 +1,51 @@
+/* Geral */
 body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #333; }
 .screen { display: none; padding: 15px; flex-direction: column; align-items: center; min-height: 100vh; }
 .screen.active { display: flex; }
-header { width: 100%; background: white; padding: 10px; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; box-sizing: border-box;}
-.card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; margin-top: 20%; }
+
+/* Cabeçalho Sticky com Botões Compactos */
+header { 
+    width: 100%; background: white; padding: 10px 15px; position: sticky; top: 0; z-index: 10; 
+    display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    box-sizing: border-box; 
+}
+header h2 { margin: 0; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+
+/* Botões de Navegação (Voltar/Cancelar) */
+button.btn-nav { 
+    width: auto; padding: 6px 12px; margin: 0; font-size: 13px; background: #6c757d; 
+    height: 35px; border-radius: 6px; border: none; color: white; cursor: pointer;
+}
+
+/* Botões Principais */
 button { padding: 15px; margin: 8px 0; border: none; background: #007bff; color: white; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; font-size: 16px; }
 .btn-secondary { background: #6c757d; }
+
+/* Botão de PDF (Destaque Vermelho) */
+.btn-pdf { 
+    background: #dc3545; color: white; padding: 12px; border-radius: 8px; font-weight: bold; 
+    display: flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: pointer; width: 100%;
+}
+
+/* Inputs e Forms */
 input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+.form { width: 100%; max-width: 500px; }
+label { font-weight: bold; font-size: 14px; color: #666; align-self: flex-start; margin-top: 10px; }
+
+/* Dashboard e Listas */
 .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #007bff; color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 20; }
-.property-item, .inspection-item { background: white; padding: 15px; margin: 8px 0; border-radius: 10px; width: 100%; max-width: 500px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-sizing: border-box;}
+.property-item, .inspection-item { background: white; padding: 15px; margin: 8px 0; border-radius: 10px; width: 100%; max-width: 500px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-sizing: border-box; }
+
+/* Seção de Cômodos */
 .room-box { background: white; border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 10px; width: 100%; box-sizing: border-box; border-left: 5px solid #007bff; }
-.thumb { width: 75px; height: 75px; object-fit: cover; border-radius: 8px; margin: 4px; border: 1px solid #eee; }
-.delete-btn { background: none; color: #dc3545; width: auto; padding: 5px; margin: 0; }
-label { font-weight: bold; font-size: 14px; color: #666; align-self: flex-start; }
-.upload-label { background: #e9ecef; color: #495057; padding: 10px; border-radius: 8px; display: inline-block; cursor: pointer; margin-top: 10px; font-size: 14px; }
-/* Container da foto para permitir o botão X por cima */
-.photo-container {
-    position: relative;
-    display: inline-block;
-    margin: 5px;
-}
+.room-obs { height: 70px; background: #fffdf0; font-size: 14px; }
 
-/* Botão de remover foto */
-.remove-photo-btn {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: rgba(220, 53, 69, 0.9);
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: 1px solid white;
-    font-weight: bold;
-}
+/* Fotos e Carregamento */
+.photo-container { position: relative; display: inline-block; margin: 5px; }
+.thumb { width: 75px; height: 75px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; }
+.remove-photo-btn { position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border: 2px solid white; cursor: pointer; }
+.loading-thumb { width: 75px; height: 75px; background: #e9ecef; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 10px; animation: pulse 1.5s infinite; margin: 5px; border: 1px dashed #ccc; }
+@keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-/* Estilo do placeholder de carregamento */
-.loading-thumb {
-    width: 75px;
-    height: 75px;
-    background: #e9ecef;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    font-size: 10px;
-    color: #666;
-    border: 1px dashed #ccc;
-    margin: 4px;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
-}
-.room-obs {
-    margin-top: 8px;
-    font-size: 14px;
-    height: 60px; /* Menor que a geral */
-    background: #fffdf0; /* Cor levemente diferente para destacar */
-}
-.btn-pdf {
-    background: #dc3545;
-    color: white;
-    width: auto;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+.upload-label { background: #e9ecef; color: #495057; padding: 10px; border-radius: 8px; display: inline-block; cursor: pointer; margin-top: 10px; font-size: 14px; font-weight: bold; }
+.delete-btn { background: none; color: #dc3545; width: auto; padding: 5px; }
