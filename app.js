@@ -225,3 +225,118 @@ window.saveInspection = async () => {
     btn.disabled = false;
     openProperty(currentPropertyId);
 };
+
+let editingInspectionIndex = null; // Para saber qual vistoria estamos editando
+
+// --- VISUALIZAR E EDITAR VISTORIA EXISTENTE ---
+window.viewInspection = (index) => {
+    editingInspectionIndex = index;
+    const v = currentPropertyData.vistorias[index];
+    
+    // Preenche a observação
+    document.getElementById('edit-ins-obs').value = v.obs || "";
+    
+    const container = document.getElementById('edit-room-sections');
+    container.innerHTML = "";
+
+    // Renderiza cada cômodo da vistoria para edição
+    v.rooms.forEach((room, roomIdx) => {
+        const roomDiv = document.createElement('div');
+        roomDiv.className = 'room-view room-box-edit';
+        
+        let photosHtml = "";
+        room.fotos.forEach(url => {
+            photosHtml += `<img src="${url}" class="thumb" onclick="window.open('${url}')">`;
+        });
+
+        roomDiv.innerHTML = `
+            <input type="text" value="${room.nome}" placeholder="Nome do cômodo" class="edit-room-name">
+            <div class="previews-edit">${photosHtml}</div>
+            <label class="add-photo-btn">
+                + Adicionar Fotos
+                <input type="file" accept="image/*" multiple style="display:none" onchange="uploadToImgBB(this)">
+            </label>
+        `;
+        container.appendChild(roomDiv);
+    });
+
+    window.showScreen('screen-view-inspection');
+};
+
+// --- ADICIONAR NOVO CÔMODO DENTRO DA EDIÇÃO ---
+window.addRoomSectionEdit = () => {
+    const div = document.createElement('div');
+    div.className = 'room-view room-box-edit';
+    div.innerHTML = `
+        <input type="text" placeholder="Nome do Novo Cômodo" class="edit-room-name">
+        <div class="previews-edit"></div>
+        <label class="add-photo-btn">
+            + Adicionar Fotos
+            <input type="file" accept="image/*" multiple style="display:none" onchange="uploadToImgBB(this)">
+        </label>
+    `;
+    document.getElementById('edit-room-sections').appendChild(div);
+};
+
+// --- SALVAR ALTERAÇÕES NA VISTORIA ---
+window.saveInspectionChanges = async () => {
+    const btn = document.getElementById('btnUpdateIns');
+    btn.innerText = "Salvando...";
+    btn.disabled = true;
+
+    // Coleta os dados editados da tela
+    const updatedRooms = [];
+    document.querySelectorAll('.room-box-edit').forEach(box => {
+        const photos = Array.from(box.querySelectorAll('.thumb')).map(img => img.dataset.url);
+        updatedRooms.push({
+            nome: box.querySelector('.edit-room-name').value,
+            fotos: photos
+        });
+    });
+
+    // Cria a cópia do array de vistorias e atualiza o item específico
+    const allVistorias = [...currentPropertyData.vistorias];
+    allVistorias[editingInspectionIndex] = {
+        ...allVistorias[editingInspectionIndex], // Mantém data e vistoriador original
+        obs: document.getElementById('edit-ins-obs').value,
+        rooms: updatedRooms
+    };
+
+    try {
+        await updateDoc(doc(db, "imoveis", currentPropertyId), {
+            vistorias: allVistorias
+        });
+        alert("Vistoria atualizada com sucesso!");
+        openProperty(currentPropertyId); // Volta para a tela do imóvel
+    } catch (e) {
+        alert("Erro ao atualizar: " + e.message);
+    }
+
+    btn.innerText = "Salvar Alterações";
+    btn.disabled = false;
+};
+
+// REAPROVEITANDO A FUNÇÃO DE UPLOAD (Ajustada para funcionar em ambas as telas)
+window.uploadToImgBB = async (input) => {
+    // Busca a div de preview que está antes ou depois do input (depende da tela)
+    const previewDiv = input.parentElement.previousElementSibling || input.nextElementSibling;
+    const files = Array.from(input.files);
+    input.disabled = true;
+    
+    for (let file of files) {
+        const formData = new FormData();
+        formData.append("image", file);
+        try {
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+            const data = await res.json();
+            if (data.success) {
+                const img = document.createElement('img');
+                img.src = data.data.url;
+                img.className = 'thumb';
+                img.dataset.url = data.data.url;
+                previewDiv.appendChild(img);
+            }
+        } catch (e) { alert("Erro no upload"); }
+    }
+    input.disabled = false;
+};
