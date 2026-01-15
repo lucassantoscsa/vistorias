@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vistoria Imóveis - Beta</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+
+    <!-- Tela 1: Login -->
+    <section id="screen-login" class="screen active">
+        <div class="card">
+            <h1>🏠 Vistoria Beta</h1>
+            <p>Selecione o vistoriador:</p>
+            <button onclick="login('João Victor')">João Victor</button>
+            <button onclick="login('Cunhado do João Victor')">Cunhado do João Victor</button>
+        </div>
+    </section>
+
+    <!-- Tela 2: Dashboard -->
+    <section id="screen-dashboard" class="screen">
+        <header>
+            <input type="text" id="searchBar" placeholder="🔍 Pesquisar endereço..." oninput="renderProperties()">
+        </header>
+        <div id="property-list"></div>
+        <button class="fab" onclick="showScreen('screen-register')"><i class="material-icons">add</i></button>
+    </section>
+
+    <!-- Tela 3: Cadastro -->
+    <section id="screen-register" class="screen">
+        <header><button onclick="showScreen('screen-dashboard')">Voltar</button><h2>Novo Imóvel</h2></header>
+        <div class="form">
+            <input type="text" id="cep" placeholder="CEP (apenas números)" onblur="searchCEP()">
+            <input type="text" id="rua" placeholder="Rua" readonly>
+            <input type="text" id="bairro" placeholder="Bairro" readonly>
+            <input type="text" id="cidade" placeholder="Cidade" readonly>
+            <input type="text" id="numero" placeholder="Número">
+            <input type="text" id="complemento" placeholder="Complemento (ex: Apto 201)">
+            <button onclick="saveProperty()" id="btnSaveProp">Salvar Imóvel</button>
+        </div>
+    </section>
+
+    <!-- Tela 4: Detalhes do Imóvel -->
+    <section id="screen-property-detail" class="screen">
+        <header><button onclick="showScreen('screen-dashboard')">Voltar</button><h2 id="detail-title"></h2></header>
+        <div id="inspection-list"></div>
+        <button class="fab" onclick="openNewInspection()"><i class="material-icons">playlist_add</i></button>
+    </section>
+
+    <!-- Tela 5: Formulário de Vistoria -->
+    <section id="screen-inspection-form" class="screen">
+        <header><button onclick="showScreen('screen-property-detail')">Cancelar</button><h2>Vistoria</h2></header>
+        <div class="form">
+            <textarea id="ins-obs" placeholder="Observações gerais do imóvel..."></textarea>
+            <div id="room-sections"></div>
+            <button onclick="addRoomSection()" class="btn-secondary">+ Adicionar Cômodo</button>
+            <button onclick="saveInspection()" id="btnSaveIns" style="background: #28a745;">Finalizar e Salvar</button>
+        </div>
+    </section>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
