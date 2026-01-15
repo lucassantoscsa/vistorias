@@ -60,3 +60,20 @@ label { font-weight: bold; font-size: 14px; color: #666; align-self: flex-start;
     50% { opacity: 1; }
     100% { opacity: 0.6; }
 }
+.room-obs {
+    margin-top: 8px;
+    font-size: 14px;
+    height: 60px; /* Menor que a geral */
+    background: #fffdf0; /* Cor levemente diferente para destacar */
+}
+.btn-pdf {
+    background: #dc3545;
+    color: white;
+    width: auto;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
