@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vistoria Imóveis - Beta</title>
+    <title>Vistoria Imóveis</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -50,11 +50,22 @@
         <button class="fab" onclick="openNewInspection()"><i class="material-icons">playlist_add</i></button>
     </section>
 
+    
+
     <!-- Tela 5: Formulário de Vistoria (Nova ou Edição) -->
     <section id="screen-inspection-form" class="screen">
-        <header><button onclick="showScreen('screen-property-detail')">Cancelar</button><h2 id="ins-form-title">Vistoria</h2></header>
+        <header>
+            <button class="btn-nav" onclick="showScreen('screen-property-detail')">Voltar</button>
+            <h2 id="ins-form-title">Vistoria</h2>
+        </header>
+        
+        <!-- Botão de PDF movido para cá (visível apenas na edição) -->
+        <button id="btn-pdf-in-form" class="btn-pdf" style="display:none; margin: 10px 0; width: 100%; justify-content: center;" onclick="generatePDF(editingInspectionIndex)">
+            <i class="material-icons">description</i> Gerar Laudo PDF
+        </button>
+
         <div class="form">
-            <label>Observações:</label>
+            <label>Observações Gerais:</label>
             <textarea id="ins-obs" placeholder="Observações gerais..."></textarea>
             
             <div id="room-sections"></div>
@@ -63,6 +74,8 @@
             <button onclick="processInspectionSave()" id="btnSaveIns" style="background: #28a745;">Salvar Vistoria</button>
         </div>
     </section>
+
+
 
     <script type="module" src="app.js"></script>
 </body>
