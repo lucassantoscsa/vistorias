@@ -12,7 +12,7 @@
     <!-- Tela 1: Login -->
     <section id="screen-login" class="screen active">
         <div class="card">
-            <h1>🏠 Vistoria Beta</h1>
+            <h1>🏠 Vistoria</h1>
             <p>Selecione o vistoriador:</p>
             <button onclick="login('João Victor')">João Victor</button>
             <button onclick="login('Cunhado do João Victor')">Cunhado do João Victor</button>
@@ -60,13 +60,25 @@
         </div>
     </section>
 
-    <!-- Tela 6: Visualizar Vistoria Pronta -->
+
+    <!-- Tela 6: Visualizar e Editar Vistoria -->
     <section id="screen-view-inspection" class="screen">
-        <header><button onclick="showScreen('screen-property-detail')">Voltar</button><h2>Detalhes da Vistoria</h2></header>
-        <div id="view-inspection-content" class="form">
-            <!-- Conteúdo gerado pelo JS -->
+        <header>
+            <button onclick="showScreen('screen-property-detail')">Voltar</button>
+            <h2>Editar Vistoria</h2>
+        </header>
+        <div class="form">
+            <label>Observações da Vistoria:</label>
+            <textarea id="edit-ins-obs" placeholder="Observações..."></textarea>
+            
+            <div id="edit-room-sections"></div>
+            
+            <button onclick="addRoomSectionEdit()" class="btn-secondary">+ Adicionar Novo Cômodo</button>
+            <button onclick="saveInspectionChanges()" id="btnUpdateIns" style="background: #28a745;">Salvar Alterações</button>
         </div>
     </section>
+
+
 
     <script type="module" src="app.js"></script>
 </body>
