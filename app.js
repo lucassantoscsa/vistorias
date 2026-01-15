@@ -12,16 +12,16 @@ const firebaseConfig = {
   appId: "1:867600856579:web:96da5eb8958aa559cdc036",
 };
 
-
+// Inicialização
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let currentUser = "";
 let currentPropertyId = "";
 let currentPropertyData = null;
-let editingInspectionIndex = null; // null = nova, numero = editando
+let editingInspectionIndex = null; // null = nova, número = index da edição
 
-// --- NAVEGAÇÃO ---
+// --- 2. NAVEGAÇÃO E LOGIN ---
 window.showScreen = (screenId) => {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
@@ -33,22 +33,28 @@ window.login = (user) => {
     window.showScreen('screen-dashboard');
 };
 
-// --- BUSCA CEP ---
+// --- 3. ENDEREÇO (ViaCEP) ---
 window.searchCEP = async () => {
-    const cep = document.getElementById('cep').value.replace(/\D/g, '');
+    const cepInput = document.getElementById('cep');
+    const cep = cepInput.value.replace(/\D/g, '');
     if (cep.length === 8) {
-        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        const data = await res.json();
-        if (!data.erro) {
-            document.getElementById('rua').value = data.logradouro;
-            document.getElementById('bairro').value = data.bairro;
-            document.getElementById('cidade').value = data.localidade;
-        }
+        try {
+            const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await res.json();
+            if (!data.erro) {
+                document.getElementById('rua').value = data.logradouro;
+                document.getElementById('bairro').value = data.bairro;
+                document.getElementById('cidade').value = data.localidade;
+            } else {
+                alert("CEP não encontrado.");
+            }
+        } catch (e) { console.error("Erro ViaCEP"); }
     }
 };
 
-// --- IMÓVEIS ---
+// --- 4. GESTÃO DE IMÓVEIS ---
 window.saveProperty = async () => {
+    const btn = document.getElementById('btnSaveProp');
     const property = {
         rua: document.getElementById('rua').value,
         bairro: document.getElementById('bairro').value,
@@ -58,24 +64,40 @@ window.saveProperty = async () => {
         createdAt: Date.now(),
         vistorias: []
     };
-    await addDoc(collection(db, "imoveis"), property);
-    window.showScreen('screen-dashboard');
+
+    if(!property.rua || !property.numero) return alert("Preencha o endereço completo.");
+
+    btn.disabled = true;
+    try {
+        await addDoc(collection(db, "imoveis"), property);
+        window.showScreen('screen-dashboard');
+    } catch (e) { alert("Erro ao salvar imóvel."); }
+    btn.disabled = false;
 };
 
 window.renderProperties = async () => {
     const list = document.getElementById('property-list');
     const search = document.getElementById('searchBar').value.toLowerCase();
-    list.innerHTML = "Carregando...";
+    list.innerHTML = "<p style='padding:20px'>Carregando imóveis...</p>";
+
     const q = query(collection(db, "imoveis"), orderBy("createdAt", "desc"));
     const querySnapshot = await getDocs(q);
+    
     list.innerHTML = "";
     querySnapshot.forEach((docSnap) => {
         const p = docSnap.data();
-        const addr = `${p.rua}, ${p.numero} ${p.complemento || ''}`;
-        if (addr.toLowerCase().includes(search)) {
+        const fullAddress = `${p.rua}, ${p.numero} ${p.complemento ? '('+p.complemento+')' : ''}`;
+        
+        if (fullAddress.toLowerCase().includes(search)) {
             const div = document.createElement('div');
             div.className = 'property-item';
-            div.innerHTML = `<div><strong>${addr}</strong><br><small>${p.bairro}</small></div>`;
+            div.innerHTML = `
+                <div>
+                    <strong>${fullAddress}</strong><br>
+                    <small>${p.bairro} - ${p.cidade}</small>
+                </div>
+                <i class="material-icons" style="color:#ccc">chevron_right</i>
+            `;
             div.onclick = () => openProperty(docSnap.id);
             list.appendChild(div);
         }
@@ -86,24 +108,76 @@ async function openProperty(docId) {
     currentPropertyId = docId;
     const docSnap = await getDoc(doc(db, "imoveis", docId));
     currentPropertyData = docSnap.data();
+    
     document.getElementById('detail-title').innerText = currentPropertyData.rua;
     const list = document.getElementById('inspection-list');
-    list.innerHTML = currentPropertyData.vistorias.length === 0 ? "Nenhuma vistoria." : "";
+    list.innerHTML = currentPropertyData.vistorias.length === 0 ? "<p style='padding:20px'>Nenhuma vistoria registrada.</p>" : "";
+
     currentPropertyData.vistorias.forEach((v, index) => {
         const div = document.createElement('div');
         div.className = 'inspection-item';
         div.innerHTML = `
             <div onclick="editInspection(${index})" style="flex-grow:1">
-                <b>📅 ${new Date(v.date).toLocaleDateString()}</b> - ${v.user}
+                <b>📅 ${new Date(v.date).toLocaleDateString()}</b><br>
+                <small>Vistoriador: ${v.user}</small>
             </div>
-            <button class="delete-btn" onclick="deleteInspection(${index})"><i class="material-icons">delete</i></button>
+            <button class="delete-btn" onclick="deleteInspection(${index})">
+                <i class="material-icons">delete</i>
+            </button>
         `;
         list.appendChild(div);
     });
     window.showScreen('screen-property-detail');
 }
 
-// --- VISTORIAS ---
+// --- 5. LÓGICA DE FOTOS (COM REMOVER E CARREGANDO) ---
+
+// Cria o elemento da foto com o botão X
+function createPhotoElement(url) {
+    const div = document.createElement('div');
+    div.className = 'photo-container';
+    div.innerHTML = `
+        <img src="${url}" class="thumb" data-url="${url}" onclick="window.open('${url}')">
+        <div class="remove-photo-btn" onclick="this.parentElement.remove()">×</div>
+    `;
+    return div;
+}
+
+window.uploadToImgBB = async (input, containerId) => {
+    const previewDiv = document.getElementById(containerId);
+    const files = Array.from(input.files);
+    
+    for (let file of files) {
+        // Adiciona placeholder de carregamento
+        const loader = document.createElement('div');
+        loader.className = 'loading-thumb';
+        loader.innerText = 'Sobe...';
+        previewDiv.appendChild(loader);
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+            const data = await res.json();
+            
+            if (data.success) {
+                const photoEl = createPhotoElement(data.data.url);
+                previewDiv.replaceChild(photoEl, loader); // Substitui carregando pela foto
+            } else {
+                loader.innerText = "Erro";
+                setTimeout(() => loader.remove(), 2000);
+            }
+        } catch (e) {
+            loader.innerText = "Erro";
+            setTimeout(() => loader.remove(), 2000);
+        }
+    }
+    input.value = ""; // Limpa para permitir subir o mesmo arquivo se quiser
+};
+
+// --- 6. VISTORIAS (NOVA E EDIÇÃO) ---
+
 window.openNewInspection = () => {
     editingInspectionIndex = null;
     document.getElementById('ins-form-title').innerText = "Nova Vistoria";
@@ -116,11 +190,12 @@ window.editInspection = (index) => {
     editingInspectionIndex = index;
     const v = currentPropertyData.vistorias[index];
     document.getElementById('ins-form-title').innerText = "Editar Vistoria";
-    document.getElementById('ins-obs').value = v.obs;
+    document.getElementById('ins-obs').value = v.obs || "";
     const container = document.getElementById('room-sections');
     container.innerHTML = "";
+    
     v.rooms.forEach(room => {
-        addRoomSection(room.nome, room.fotos);
+        window.addRoomSection(room.nome, room.fotos);
     });
     window.showScreen('screen-inspection-form');
 };
@@ -128,38 +203,24 @@ window.editInspection = (index) => {
 window.addRoomSection = (nome = "", fotos = []) => {
     const div = document.createElement('div');
     div.className = 'room-box';
-    let fotosHtml = fotos.map(url => `<img src="${url}" class="thumb" data-url="${url}" onclick="window.open('${url}')">`).join('');
+    const containerId = "container-" + Math.random().toString(36).substr(2, 9);
+    
     div.innerHTML = `
         <input type="text" placeholder="Nome do Cômodo" value="${nome}" class="room-name">
-        <div class="previews">${fotosHtml}</div>
+        <div class="previews" id="${containerId}"></div>
         <label class="upload-label">
-            + Adicionar Fotos
-            <input type="file" accept="image/*" multiple style="display:none" onchange="uploadToImgBB(this)">
+            <i class="material-icons" style="font-size:18px; vertical-align:middle">add_a_photo</i> 
+            Adicionar Fotos
+            <input type="file" accept="image/*" multiple style="display:none" onchange="uploadToImgBB(this, '${containerId}')">
         </label>
     `;
     document.getElementById('room-sections').appendChild(div);
-};
 
-window.uploadToImgBB = async (input) => {
-    const previewDiv = input.parentElement.previousElementSibling;
-    const files = Array.from(input.files);
-    input.disabled = true;
-    for (let file of files) {
-        const formData = new FormData();
-        formData.append("image", file);
-        try {
-            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
-            const data = await res.json();
-            if (data.success) {
-                const img = document.createElement('img');
-                img.src = data.data.url;
-                img.className = 'thumb';
-                img.dataset.url = data.data.url;
-                previewDiv.appendChild(img);
-            }
-        } catch (e) { alert("Erro no upload"); }
-    }
-    input.disabled = false;
+    // Renderiza fotos existentes (se for edição)
+    const previewDiv = div.querySelector('.previews');
+    fotos.forEach(url => {
+        previewDiv.appendChild(createPhotoElement(url));
+    });
 };
 
 window.processInspectionSave = async () => {
@@ -169,37 +230,49 @@ window.processInspectionSave = async () => {
 
     const rooms = [];
     document.querySelectorAll('.room-box').forEach(box => {
-        const photos = Array.from(box.querySelectorAll('.thumb')).map(img => img.dataset.url);
-        rooms.push({ nome: box.querySelector('.room-name').value, fotos: photos });
+        // Coleta apenas as imagens que estão visíveis na tela (não removidas pelo X)
+        const photos = Array.from(box.querySelectorAll('img.thumb')).map(img => img.dataset.url);
+        rooms.push({ 
+            nome: box.querySelector('.room-name').value || "Cômodo sem nome", 
+            fotos: photos 
+        });
     });
 
-    let updatedVistorias = [...currentPropertyData.vistorias];
+    let vistoriasAtualizadas = [...currentPropertyData.vistorias];
     
+    const inspectionData = {
+        user: editingInspectionIndex !== null ? vistoriasAtualizadas[editingInspectionIndex].user : currentUser,
+        date: editingInspectionIndex !== null ? vistoriasAtualizadas[editingInspectionIndex].date : Date.now(),
+        obs: document.getElementById('ins-obs').value,
+        rooms: rooms
+    };
+
     if (editingInspectionIndex === null) {
-        // Nova Vistoria
-        updatedVistorias.push({ user: currentUser, date: Date.now(), obs: document.getElementById('ins-obs').value, rooms: rooms });
+        vistoriasAtualizadas.push(inspectionData);
     } else {
-        // Editar Existente
-        updatedVistorias[editingInspectionIndex] = {
-            ...updatedVistorias[editingInspectionIndex],
-            obs: document.getElementById('ins-obs').value,
-            rooms: rooms
-        };
+        vistoriasAtualizadas[editingInspectionIndex] = inspectionData;
     }
 
     try {
-        await updateDoc(doc(db, "imoveis", currentPropertyId), { vistorias: updatedVistorias });
-        openProperty(currentPropertyId);
-    } catch (e) { alert("Erro ao salvar"); }
+        await updateDoc(doc(db, "imoveis", currentPropertyId), { vistorias: vistoriasAtualizadas });
+        await openProperty(currentPropertyId);
+    } catch (e) {
+        alert("Erro ao salvar vistoria.");
+        console.error(e);
+    }
     
     btn.disabled = false;
     btn.innerText = "Salvar Vistoria";
 };
 
 window.deleteInspection = async (index) => {
-    if (!confirm("Excluir esta vistoria?")) return;
-    let updatedVistorias = [...currentPropertyData.vistorias];
-    updatedVistorias.splice(index, 1);
-    await updateDoc(doc(db, "imoveis", currentPropertyId), { vistorias: updatedVistorias });
-    openProperty(currentPropertyId);
+    if (!confirm("Excluir esta vistoria permanentemente?")) return;
+    
+    let vistoriasAtualizadas = [...currentPropertyData.vistorias];
+    vistoriasAtualizadas.splice(index, 1);
+
+    try {
+        await updateDoc(doc(db, "imoveis", currentPropertyId), { vistorias: vistoriasAtualizadas });
+        openProperty(currentPropertyId);
+    } catch (e) { alert("Erro ao excluir."); }
 };
