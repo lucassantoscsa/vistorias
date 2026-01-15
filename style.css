@@ -18,3 +18,8 @@ input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #
 .room-view h3 { margin-top: 0; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 5px; }
 .thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin: 4px; border: 1px solid #ddd; }
 .obs-view { background: #e9ecef; padding: 10px; border-radius: 8px; font-style: italic; margin-bottom: 15px; width: 100%; }
+
+label { font-weight: bold; align-self: flex-start; margin-top: 10px; color: #555; }
+.room-view { border-left: 5px solid #007bff; padding-left: 15px; margin-bottom: 20px; background: #fff; }
+.room-view input[type="text"] { font-weight: bold; border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 5px 0; }
+.add-photo-btn { background: #6c757d; font-size: 12px; padding: 8px; margin-top: 5px; width: auto; display: inline-block; }
